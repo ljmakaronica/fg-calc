@@ -1395,7 +1395,6 @@
         opt.textContent = `${k.name} (${k.team})`;
         dropdown.appendChild(opt);
       });
-      dropdown.value = 'bears'; // Default
     }
 
     function updateKicker(kickerId) {
@@ -1638,6 +1637,7 @@
 
     function endDrag() {
       isDragging = false;
+      localStorage.setItem('fg-percent', currentPercent);
     }
 
     marker.addEventListener('mousedown', startDrag);
@@ -1649,10 +1649,14 @@
     document.addEventListener('touchmove', doDrag, { passive: false });
     document.addEventListener('touchend', endDrag);
 
-    dropdown.addEventListener('change', (e) => updateKicker(e.target.value));
+    dropdown.addEventListener('change', (e) => {
+      updateKicker(e.target.value);
+      localStorage.setItem('fg-kicker', e.target.value);
+    });
 
     kickMarkersToggle.addEventListener('change', () => {
       showKickMarkers = kickMarkersToggle.checked;
+      localStorage.setItem('fg-markers', showKickMarkers);
       renderKickMarkers(dropdown.value);
     });
 
@@ -1668,11 +1672,22 @@
     function init() {
       populateDropdown();
       createFieldMarkings();
-      updateKicker('bears');
 
-      currentPercent = endZonePercent + (30 / 100) * playingFieldPercent;
+      const savedKicker = localStorage.getItem('fg-kicker');
+      const savedMarkers = localStorage.getItem('fg-markers');
+      const savedPercent = localStorage.getItem('fg-percent');
 
-      // Set initial position after a brief delay to ensure field is rendered
+      const kickerId = (savedKicker && kickers[savedKicker]) ? savedKicker : 'bears';
+      dropdown.value = kickerId;
+      updateKicker(kickerId);
+
+      if (savedMarkers !== null) {
+        showKickMarkers = savedMarkers === 'true';
+        kickMarkersToggle.checked = showKickMarkers;
+      }
+
+      currentPercent = savedPercent ? parseFloat(savedPercent) : endZonePercent + (30 / 100) * playingFieldPercent;
+
       requestAnimationFrame(() => {
         setMarkerPosition();
         const fgDistance = percentToYardsFromGoal(currentPercent) + 17;
