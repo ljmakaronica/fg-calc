@@ -1521,7 +1521,6 @@
       if (!kicks) return;
 
       const horizontal = isHorizontal();
-      const rect = field.getBoundingClientRect();
 
       kicks.forEach((kick, index) => {
         const [distance, made, date, opponent] = kick;
@@ -1542,15 +1541,14 @@
         const seed = distance * 7 + date.charCodeAt(8) * 13;
         const offset = 25 + (seed % 50); // Range: 25% to 75% across field width
 
-        // Use same pixel-based positioning as yellow marker for accuracy
         if (horizontal) {
-          marker.style.left = '0';
+          marker.style.left = percent + '%';
           marker.style.top = offset + '%';
-          marker.style.transform = `translateX(${(percent / 100) * rect.width}px) translateY(-50%)`;
+          marker.style.transform = 'translate(-50%, -50%)';
         } else {
-          marker.style.top = '0';
+          marker.style.top = percent + '%';
           marker.style.left = offset + '%';
-          marker.style.transform = `translateY(${(percent / 100) * rect.height}px) translateX(-50%)`;
+          marker.style.transform = 'translate(-50%, -50%)';
         }
 
         marker.addEventListener('mouseenter', showTooltip);
