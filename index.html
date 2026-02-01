@@ -8,23 +8,37 @@
 </head>
 <body>
   <div class="panel">
-    <div class="kicker-select">
-      <select id="kicker-dropdown"></select>
-    </div>
+    <div class="panel-card">
+      <div class="kicker-identity">
+        <img src="logos/bears.png" alt="Team Logo" id="panel-logo" class="panel-logo">
+        <div class="kicker-info">
+          <div class="kicker-name" id="kicker-name">Cairo Santos</div>
+          <div class="kicker-team" id="kicker-team">Chicago Bears</div>
+        </div>
+      </div>
 
-    <div class="scoreboard">
-      <div class="scoreboard-number" id="result">--</div>
-      <div class="scoreboard-unit">YARDS</div>
-    </div>
+      <div class="kicker-select">
+        <select id="kicker-dropdown"></select>
+      </div>
 
-    <div class="success-rate" id="success-rate">
-      <div class="rate-number" id="rate-number">--</div>
-      <div class="rate-label" id="rate-label">SELECT A KICKER</div>
-    </div>
+      <div class="panel-divider"></div>
 
-    <div class="kicker-stats">
-      <div class="kicker-stat">Season Long: <span id="season-long">--</span></div>
-      <div class="kicker-stat">Career Long: <span id="career-long">--</span></div>
+      <div class="scoreboard">
+        <span class="scoreboard-number" id="result">--</span>
+        <span class="scoreboard-unit">YDS</span>
+      </div>
+
+      <div class="success-rate" id="success-rate">
+        <div class="rate-number" id="rate-number">--</div>
+        <div class="rate-label" id="rate-label">SELECT A KICKER</div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="kicker-stats">
+        <div class="kicker-stat">Season Long <span id="season-long">--</span></div>
+        <div class="kicker-stat">Career Long <span id="career-long">--</span></div>
+      </div>
     </div>
   </div>
 
@@ -170,6 +184,9 @@
     const endzoneTextLeft = document.getElementById('endzone-text-left');
     const endzoneTextRight = document.getElementById('endzone-text-right');
     const teamLogo = document.getElementById('team-logo');
+    const panelLogo = document.getElementById('panel-logo');
+    const kickerNameEl = document.getElementById('kicker-name');
+    const kickerTeamEl = document.getElementById('kicker-team');
     const kickTooltip = document.getElementById('kick-tooltip');
 
     let isDragging = false;
@@ -193,14 +210,18 @@
 
       endzoneTextLeft.textContent = currentKicker.city;
       endzoneTextRight.textContent = currentKicker.team.toUpperCase();
+      kickerNameEl.textContent = currentKicker.name;
+      const cityTitle = currentKicker.city.split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+      kickerTeamEl.textContent = `${cityTitle} ${currentKicker.team}`;
       seasonLongEl.textContent = currentKicker.seasonLong;
       careerLongEl.textContent = currentKicker.careerLong;
 
       document.documentElement.style.setProperty('--primary-color', currentKicker.primary);
       document.documentElement.style.setProperty('--secondary-color', currentKicker.secondary);
 
-      // Update logo to match team
+      // Update logos to match team
       teamLogo.src = `logos/${kickerId}.png`;
+      panelLogo.src = `logos/${kickerId}.png`;
 
       // Render kick markers for this kicker
       renderKickMarkers(kickerId);
