@@ -1544,11 +1544,11 @@
         if (horizontal) {
           marker.style.left = percent + '%';
           marker.style.top = offset + '%';
-          marker.style.transform = 'translate(-50%, -50%)';
+          marker.style.transform = 'translateY(-50%)';
         } else {
           marker.style.top = percent + '%';
           marker.style.left = offset + '%';
-          marker.style.transform = 'translate(-50%, -50%)';
+          marker.style.transform = 'translateX(-50%)';
         }
 
         marker.addEventListener('mouseenter', showTooltip);
