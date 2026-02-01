@@ -561,12 +561,12 @@ body {
     aspect-ratio: 53.3 / 120;
     max-height: calc(100dvh - 160px);
 
-    /* Vertical grass stripes */
+    /* Vertical grass stripes - 5 yard intervals (83.34% / 20 = 4.167%) */
     background:
       repeating-linear-gradient(
         180deg,
-        #6b8c42 0%, #6b8c42 5%,
-        #5f7d3a 5%, #5f7d3a 10%
+        #6b8c42 0%, #6b8c42 4.167%,
+        #5f7d3a 4.167%, #5f7d3a 8.334%
       );
   }
 
@@ -652,12 +652,12 @@ body {
     aspect-ratio: 120 / 53.3;
     max-width: calc(100vw - 260px);
 
-    /* Horizontal grass stripes */
+    /* Horizontal grass stripes - 5 yard intervals (83.34% / 20 = 4.167%) */
     background:
       repeating-linear-gradient(
         90deg,
-        #6b8c42 0%, #6b8c42 5%,
-        #5f7d3a 5%, #5f7d3a 10%
+        #6b8c42 0%, #6b8c42 4.167%,
+        #5f7d3a 4.167%, #5f7d3a 8.334%
       );
   }
 
