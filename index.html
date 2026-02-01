@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FG Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="panel">
+    <div class="kicker-select">
+      <select id="kicker-dropdown"></select>
+    </div>
+
+    <div class="scoreboard">
+      <div class="scoreboard-number" id="result">--</div>
+      <div class="scoreboard-unit">YARDS</div>
+    </div>
+
+    <div class="success-rate" id="success-rate">
+      <div class="rate-number" id="rate-number">--</div>
+      <div class="rate-label" id="rate-label">SELECT A KICKER</div>
+    </div>
+
+    <div class="kicker-stats">
+      <div class="kicker-stat">Season Long: <span id="season-long">--</span></div>
+      <div class="kicker-stat">Career Long: <span id="career-long">--</span></div>
+    </div>
+  </div>
+
+  <div class="field-wrapper">
+    <div class="field" id="field">
+      <div class="goal-post">
+        <div class="upright-container">
+          <div class="upright"></div>
+          <div class="upright"></div>
+        </div>
+        <div class="crossbar"></div>
+        <div class="post"></div>
+      </div>
+
+      <div class="end-zone goal">
+        <span class="end-zone-text" id="endzone-text-left">CHICAGO</span>
+      </div>
+
+      <div class="end-zone team">
+        <span class="end-zone-text" id="endzone-text-right">BEARS</span>
+      </div>
+
+      <div class="midfield-logo">
+        <img src="bears-logo.png" alt="Logo" id="team-logo">
+      </div>
+
+      <div class="marker" id="marker">
+        <div class="ball-spot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kick-tooltip" id="kick-tooltip"></div>
+
+  <script>
+    // 2025 NFL Kickers - All 32 teams
+    // Stats: made/attempts by distance range (2025 season)
+    const kickers = {
+      // AFC East
+      bills: { name: "Tyler Bass", team: "Bills", city: "BUFFALO", seasonLong: 57, careerLong: 61, primary: "#00338D", secondary: "#C60C30", fg: { 20: [4,4], 30: [7,8], 40: [6,6], 50: [1,2] } },
+      dolphins: { name: "Riley Patterson", team: "Dolphins", city: "MIAMI", seasonLong: 54, careerLong: 58, primary: "#008E97", secondary: "#FC4C02", fg: { 20: [5,5], 30: [8,9], 40: [11,11], 50: [3,4] } },
+      jets: { name: "Nick Folk", team: "Jets", city: "NEW YORK", seasonLong: 52, careerLong: 56, primary: "#125740", secondary: "#FFFFFF", fg: { 20: [5,5], 30: [9,9], 40: [7,7], 50: [7,8] } },
+      patriots: { name: "Andres Borregales", team: "Patriots", city: "NEW ENGLAND", seasonLong: 51, careerLong: 51, primary: "#002244", secondary: "#C60C30", fg: { 20: [6,6], 30: [8,9], 40: [7,11], 50: [4,4] } },
+
+      // AFC North
+      ravens: { name: "Tyler Loop", team: "Ravens", city: "BALTIMORE", seasonLong: 55, careerLong: 55, primary: "#241773", secondary: "#9E7C0C", fg: { 20: [10,10], 30: [11,11], 40: [8,9], 50: [1,4] } },
+      bengals: { name: "Evan McPherson", team: "Bengals", city: "CINCINNATI", seasonLong: 63, careerLong: 63, primary: "#FB4F14", secondary: "#000000", fg: { 20: [4,4], 30: [6,6], 40: [10,10], 50: [5,8] } },
+      browns: { name: "Andre Szmyt", team: "Browns", city: "CLEVELAND", seasonLong: 56, careerLong: 56, primary: "#311D00", secondary: "#FF3C00", fg: { 20: [4,4], 30: [10,11], 40: [5,6], 50: [5,6] } },
+      steelers: { name: "Chris Boswell", team: "Steelers", city: "PITTSBURGH", seasonLong: 57, careerLong: 59, primary: "#FFB612", secondary: "#101820", fg: { 20: [6,6], 30: [2,4], 40: [10,11], 50: [9,11] } },
+
+      // AFC South
+      texans: { name: "Ka'imi Fairbairn", team: "Texans", city: "HOUSTON", seasonLong: 57, careerLong: 61, primary: "#03202F", secondary: "#A71930", fg: { 20: [8,8], 30: [11,11], 40: [16,16], 50: [9,13] } },
+      colts: { name: "Spencer Shrader", team: "Colts", city: "INDIANAPOLIS", seasonLong: 54, careerLong: 54, primary: "#002C5F", secondary: "#A2AAAD", fg: { 20: [5,5], 30: [5,5], 40: [2,2], 50: [1,2] } },
+      jaguars: { name: "Cam Little", team: "Jaguars", city: "JACKSONVILLE", seasonLong: 68, careerLong: 68, primary: "#006778", secondary: "#D7A22A", fg: { 20: [5,5], 30: [9,9], 40: [8,10], 50: [8,10] } },
+      titans: { name: "Joey Slye", team: "Titans", city: "TENNESSEE", seasonLong: 53, careerLong: 56, primary: "#0C2340", secondary: "#4B92DB", fg: { 20: [6,6], 30: [6,6], 40: [7,9], 50: [9,14] } },
+
+      // AFC West
+      broncos: { name: "Wil Lutz", team: "Broncos", city: "DENVER", seasonLong: 56, careerLong: 61, primary: "#FB4F14", secondary: "#002244", fg: { 20: [10,10], 30: [11,11], 40: [3,5], 50: [4,6] } },
+      chiefs: { name: "Harrison Butker", team: "Chiefs", city: "KANSAS CITY", seasonLong: 59, careerLong: 62, primary: "#E31837", secondary: "#FFB81C", fg: { 20: [9,9], 30: [9,9], 40: [9,11], 50: [5,8] } },
+      raiders: { name: "Daniel Carlson", team: "Raiders", city: "LAS VEGAS", seasonLong: 56, careerLong: 61, primary: "#000000", secondary: "#A5ACAF", fg: { 20: [5,5], 30: [6,6], 40: [6,8], 50: [5,8] } },
+      chargers: { name: "Cameron Dicker", team: "Chargers", city: "LOS ANGELES", seasonLong: 59, careerLong: 59, primary: "#0080C6", secondary: "#FFC20E", fg: { 20: [7,7], 30: [14,15], 40: [12,13], 50: [5,6] } },
+
+      // NFC East
+      cowboys: { name: "Brandon Aubrey", team: "Cowboys", city: "DALLAS", seasonLong: 64, careerLong: 65, primary: "#041E42", secondary: "#869397", fg: { 20: [10,10], 30: [5,5], 40: [10,10], 50: [11,17] } },
+      giants: { name: "Graham Gano", team: "Giants", city: "NEW YORK", seasonLong: 52, careerLong: 63, primary: "#0B2265", secondary: "#A71930", fg: { 20: [3,3], 30: [4,4], 40: [1,2], 50: [1,1] } },
+      eagles: { name: "Jake Elliott", team: "Eagles", city: "PHILADELPHIA", seasonLong: 58, careerLong: 61, primary: "#004C54", secondary: "#A5ACAF", fg: { 20: [3,3], 30: [6,6], 40: [7,10], 50: [4,8] } },
+      commanders: { name: "Matt Gay", team: "Commanders", city: "WASHINGTON", seasonLong: 55, careerLong: 57, primary: "#5A1414", secondary: "#FFB612", fg: { 20: [2,2], 30: [2,3], 40: [5,5], 50: [4,9] } },
+
+      // NFC North
+      bears: { name: "Cairo Santos", team: "Bears", city: "CHICAGO", seasonLong: 55, careerLong: 55, primary: "#0B162A", secondary: "#C83803", fg: { 20: [3,3], 30: [8,9], 40: [10,12], 50: [4,6] } },
+      lions: { name: "Jake Bates", team: "Lions", city: "DETROIT", seasonLong: 58, careerLong: 64, primary: "#0076B6", secondary: "#B0B7BC", fg: { 20: [6,6], 30: [8,8], 40: [9,11], 50: [4,9] } },
+      packers: { name: "Brandon McManus", team: "Packers", city: "GREEN BAY", seasonLong: 53, careerLong: 61, primary: "#203731", secondary: "#FFB612", fg: { 20: [10,10], 30: [8,8], 40: [3,7], 50: [3,5] } },
+      vikings: { name: "Will Reichard", team: "Vikings", city: "MINNESOTA", seasonLong: 62, careerLong: 62, primary: "#4F2683", secondary: "#FFC62F", fg: { 20: [6,6], 30: [9,9], 40: [7,7], 50: [11,13] } },
+
+      // NFC South
+      falcons: { name: "Zane Gonzalez", team: "Falcons", city: "ATLANTA", seasonLong: 55, careerLong: 58, primary: "#A71930", secondary: "#000000", fg: { 20: [1,1], 30: [3,4], 40: [8,8], 50: [7,9] } },
+      panthers: { name: "Ryan Fitzgerald", team: "Panthers", city: "CAROLINA", seasonLong: 56, careerLong: 56, primary: "#0085CA", secondary: "#101820", fg: { 20: [6,6], 30: [8,9], 40: [8,9], 50: [2,5] } },
+      saints: { name: "Blake Grupe", team: "Saints", city: "NEW ORLEANS", seasonLong: 57, careerLong: 60, primary: "#D3BC8D", secondary: "#101820", fg: { 20: [7,7], 30: [6,8], 40: [2,5], 50: [3,6] } },
+      buccaneers: { name: "Chase McLaughlin", team: "Buccaneers", city: "TAMPA BAY", seasonLong: 65, careerLong: 65, primary: "#D50A0A", secondary: "#FF7900", fg: { 20: [6,6], 30: [9,11], 40: [6,9], 50: [11,12] } },
+
+      // NFC West
+      cardinals: { name: "Chad Ryland", team: "Cardinals", city: "ARIZONA", seasonLong: 53, careerLong: 53, primary: "#97233F", secondary: "#000000", fg: { 20: [5,5], 30: [7,8], 40: [7,10], 50: [6,10] } },
+      rams: { name: "Joshua Karty", team: "Rams", city: "LOS ANGELES", seasonLong: 55, careerLong: 55, primary: "#003594", secondary: "#FFA300", fg: { 20: [3,4], 30: [3,5], 40: [3,4], 50: [1,2] } },
+      niners: { name: "Eddy Pineiro", team: "49ers", city: "SAN FRANCISCO", seasonLong: 57, careerLong: 59, primary: "#AA0000", secondary: "#B3995D", fg: { 20: [5,5], 30: [7,7], 40: [10,10], 50: [6,7] } },
+      seahawks: { name: "Jason Myers", team: "Seahawks", city: "SEATTLE", seasonLong: 57, careerLong: 61, primary: "#002244", secondary: "#69BE28", fg: { 20: [5,6], 30: [14,15], 40: [13,15], 50: [9,12] } },
+    };
+
+    const NFL_RECORD = 68; // Cam Little
+
+    // Individual kick logs for 2025 season (regular season only)
+    // Format: [distance, made (true/false), date, opponent]
+    const kickLogs = {
+      bears: [
+        [42, true, "2025-09-08", "vs MIN"],
+        [50, false, "2025-09-08", "vs MIN"],
+        [30, true, "2025-09-21", "vs DAL"],
+        [46, true, "2025-09-28", "@ LVR"],
+        [43, true, "2025-09-28", "@ LVR"],
+        [52, true, "2025-09-28", "@ LVR"],
+        [51, true, "2025-09-28", "@ LVR"],
+        [32, true, "2025-10-26", "@ BAL"],
+        [39, true, "2025-10-26", "@ BAL"],
+        [47, true, "2025-10-26", "@ BAL"],
+        [53, false, "2025-10-26", "@ BAL"],
+        [24, true, "2025-11-02", "@ CIN"],
+        [36, true, "2025-11-02", "@ CIN"],
+        [45, false, "2025-11-02", "@ CIN"],
+        [22, true, "2025-11-09", "vs NYG"],
+        [38, true, "2025-11-16", "@ MIN"],
+        [54, true, "2025-11-16", "@ MIN"],
+        [33, true, "2025-11-16", "@ MIN"],
+        [48, true, "2025-11-16", "@ MIN"],
+        [44, false, "2025-11-16", "@ MIN"],
+        [47, true, "2025-11-23", "vs PIT"],
+        [30, true, "2025-11-28", "@ PHI"],
+        [33, true, "2025-12-07", "@ GNB"],
+        [41, true, "2025-12-07", "@ GNB"],
+        [35, false, "2025-12-14", "vs CLE"],
+        [41, true, "2025-12-14", "vs CLE"],
+        [46, true, "2025-12-20", "vs GNB"],
+        [51, true, "2025-12-20", "vs GNB"],
+        [43, true, "2025-12-20", "vs GNB"],
+        [29, true, "2025-12-28", "@ SFO"],
+      ],
+    };
+
+    let currentKicker = null;
+    let currentPercent = 33;
+
+    const field = document.getElementById('field');
+    const marker = document.getElementById('marker');
+    const result = document.getElementById('result');
+    const rateNumber = document.getElementById('rate-number');
+    const rateLabel = document.getElementById('rate-label');
+    const successRate = document.getElementById('success-rate');
+    const seasonLongEl = document.getElementById('season-long');
+    const careerLongEl = document.getElementById('career-long');
+    const dropdown = document.getElementById('kicker-dropdown');
+    const endzoneTextLeft = document.getElementById('endzone-text-left');
+    const endzoneTextRight = document.getElementById('endzone-text-right');
+    const teamLogo = document.getElementById('team-logo');
+    const kickTooltip = document.getElementById('kick-tooltip');
+
+    let isDragging = false;
+    const endZonePercent = 8.33;
+    const playingFieldPercent = 83.34;
+
+    // Populate dropdown
+    function populateDropdown() {
+      const sorted = Object.entries(kickers).sort((a, b) => a[1].team.localeCompare(b[1].team));
+      sorted.forEach(([id, k]) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = `${k.name} (${k.team})`;
+        dropdown.appendChild(opt);
+      });
+      dropdown.value = 'bears'; // Default
+    }
+
+    function updateKicker(kickerId) {
+      currentKicker = kickers[kickerId];
+
+      endzoneTextLeft.textContent = currentKicker.city;
+      endzoneTextRight.textContent = currentKicker.team.toUpperCase();
+      seasonLongEl.textContent = currentKicker.seasonLong;
+      careerLongEl.textContent = currentKicker.careerLong;
+
+      document.documentElement.style.setProperty('--primary-color', currentKicker.primary);
+      document.documentElement.style.setProperty('--secondary-color', currentKicker.secondary);
+
+      // Update logo to match team
+      teamLogo.src = `logos/${kickerId}.png`;
+
+      // Render kick markers for this kicker
+      renderKickMarkers(kickerId);
+
+      updateSuccessRate(percentToYardsFromGoal(currentPercent) + 17);
+    }
+
+    function isHorizontal() {
+      return window.innerWidth > window.innerHeight;
+    }
+
+    function percentToYardsFromGoal(percent) {
+      if (percent <= endZonePercent) return 0;
+      if (percent >= (100 - endZonePercent)) return 100;
+      return Math.round(((percent - endZonePercent) / playingFieldPercent) * 100);
+    }
+
+    function clampPosition(percent) {
+      return Math.max(endZonePercent + 1, Math.min(100 - endZonePercent - 1, percent));
+    }
+
+    function updateMarker(clientX, clientY) {
+      const rect = field.getBoundingClientRect();
+      let percent;
+
+      if (isHorizontal()) {
+        percent = ((clientX - rect.left) / rect.width) * 100;
+      } else {
+        percent = ((clientY - rect.top) / rect.height) * 100;
+      }
+
+      percent = clampPosition(percent);
+
+      // Snap to whole yards
+      const yardsFromGoal = percentToYardsFromGoal(percent);
+      const snappedPercent = endZonePercent + (yardsFromGoal / 100) * playingFieldPercent;
+      currentPercent = snappedPercent;
+
+      // Use transforms for GPU-accelerated smooth movement
+      if (isHorizontal()) {
+        marker.style.transform = `translateX(${(snappedPercent / 100) * rect.width}px)`;
+      } else {
+        marker.style.transform = `translateY(${(snappedPercent / 100) * rect.height}px)`;
+      }
+
+      const fgDistance = yardsFromGoal + 17;
+      result.textContent = fgDistance;
+      updateSuccessRate(fgDistance);
+    }
+
+    function updateSuccessRate(distance) {
+      if (!currentKicker) return;
+
+      const fg = currentKicker.fg;
+      const seasonLong = currentKicker.seasonLong;
+      let made, attempts, rangeLabel;
+
+      // Beyond their proven range (season long)
+      if (distance > seasonLong) {
+        rateNumber.textContent = '—';
+        rateLabel.textContent = 'NO DATA';
+        successRate.className = 'success-rate';
+        return;
+      }
+
+      // Determine stats and label based on distance range
+      if (distance < 30) {
+        [made, attempts] = fg[20];
+        rangeLabel = 'FROM 20-29 YDS';
+      } else if (distance < 40) {
+        [made, attempts] = fg[30];
+        rangeLabel = 'FROM 30-39 YDS';
+      } else if (distance < 50) {
+        [made, attempts] = fg[40];
+        rangeLabel = 'FROM 40-49 YDS';
+      } else {
+        [made, attempts] = fg[50];
+        rangeLabel = `FROM 50-${seasonLong} YDS`;
+      }
+
+      const percentage = attempts > 0 ? Math.round((made / attempts) * 100) : 0;
+      rateNumber.textContent = `${percentage}%`;
+      rateLabel.textContent = `${made}/${attempts} ${rangeLabel}`;
+
+      // Color based on percentage
+      successRate.className = 'success-rate';
+      if (percentage >= 90) {
+        successRate.classList.add('easy');
+      } else if (percentage >= 75) {
+        successRate.classList.add('medium');
+      } else if (percentage >= 60) {
+        successRate.classList.add('hard');
+      } else {
+        successRate.classList.add('extreme');
+      }
+    }
+
+    function renderKickMarkers(kickerId) {
+      // Remove existing markers
+      document.querySelectorAll('.kick-marker').forEach(el => el.remove());
+
+      const kicks = kickLogs[kickerId];
+      if (!kicks) return;
+
+      const horizontal = isHorizontal();
+      const rect = field.getBoundingClientRect();
+
+      kicks.forEach((kick, index) => {
+        const [distance, made, date, opponent] = kick;
+        const yardsFromGoal = distance - 17; // Convert FG distance to field position
+
+        // Calculate position (percentage from goal line end zone)
+        const percent = endZonePercent + (yardsFromGoal / 100) * playingFieldPercent;
+
+        const marker = document.createElement('div');
+        marker.className = `kick-marker ${made ? 'made' : 'missed'}`;
+        marker.innerHTML = made ? '✓' : '✗';
+        marker.dataset.distance = distance;
+        marker.dataset.result = made ? 'GOOD' : 'MISS';
+        marker.dataset.date = date;
+        marker.dataset.opponent = opponent;
+
+        // Pseudo-random position based on kick data (consistent but natural looking)
+        const seed = distance * 7 + date.charCodeAt(8) * 13;
+        const offset = 25 + (seed % 50); // Range: 25% to 75% across field width
+
+        // Use same pixel-based positioning as yellow marker for accuracy
+        if (horizontal) {
+          marker.style.left = '0';
+          marker.style.top = offset + '%';
+          marker.style.transform = `translateX(${(percent / 100) * rect.width}px) translateY(-50%)`;
+        } else {
+          marker.style.top = '0';
+          marker.style.left = offset + '%';
+          marker.style.transform = `translateY(${(percent / 100) * rect.height}px) translateX(-50%)`;
+        }
+
+        marker.addEventListener('mouseenter', showTooltip);
+        marker.addEventListener('mouseleave', hideTooltip);
+
+        field.appendChild(marker);
+      });
+    }
+
+    function showTooltip(e) {
+      const el = e.target;
+      const distance = el.dataset.distance;
+      const result = el.dataset.result;
+      const date = el.dataset.date;
+      const opponent = el.dataset.opponent;
+
+      kickTooltip.innerHTML = `<strong>${distance} YDS - ${result}</strong><br>${date}<br>${opponent}`;
+      kickTooltip.style.display = 'block';
+
+      const rect = el.getBoundingClientRect();
+      kickTooltip.style.left = rect.left + rect.width / 2 + 'px';
+      kickTooltip.style.top = rect.top - 10 + 'px';
+    }
+
+    function hideTooltip() {
+      kickTooltip.style.display = 'none';
+    }
+
+    function createFieldMarkings() {
+      document.querySelectorAll('.yard-line, .yard-number').forEach(el => el.remove());
+      const horizontal = isHorizontal();
+
+      for (let yard = 0; yard <= 100; yard += 5) {
+        const percent = endZonePercent + (yard / 100) * playingFieldPercent;
+
+        const line = document.createElement('div');
+        line.className = 'yard-line' + (yard % 10 === 0 ? ' major' : '');
+
+        if (horizontal) {
+          line.style.left = percent + '%';
+        } else {
+          line.style.top = percent + '%';
+        }
+        field.appendChild(line);
+
+        if (yard % 10 === 0 && yard > 0 && yard < 100) {
+          const displayNum = yard <= 50 ? yard : 100 - yard;
+
+          const num1 = document.createElement('div');
+          num1.className = 'yard-number left';
+          num1.textContent = displayNum;
+
+          const num2 = document.createElement('div');
+          num2.className = 'yard-number right';
+          num2.textContent = displayNum;
+
+          if (horizontal) {
+            num1.style.left = (percent + 0.5) + '%';
+            num2.style.left = (percent + 0.5) + '%';
+          } else {
+            num1.style.top = (percent + 0.5) + '%';
+            num2.style.top = (percent + 0.5) + '%';
+          }
+
+          field.appendChild(num1);
+          field.appendChild(num2);
+        }
+      }
+    }
+
+    function startDrag(e) {
+      isDragging = true;
+      e.preventDefault();
+      const touch = e.touches ? e.touches[0] : e;
+      updateMarker(touch.clientX, touch.clientY);
+    }
+
+    function doDrag(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const touch = e.touches ? e.touches[0] : e;
+      updateMarker(touch.clientX, touch.clientY);
+    }
+
+    function endDrag() {
+      isDragging = false;
+    }
+
+    marker.addEventListener('mousedown', startDrag);
+    field.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', endDrag);
+    marker.addEventListener('touchstart', startDrag, { passive: false });
+    field.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', doDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
+
+    dropdown.addEventListener('change', (e) => updateKicker(e.target.value));
+
+    function setMarkerPosition() {
+      const rect = field.getBoundingClientRect();
+      if (isHorizontal()) {
+        marker.style.transform = `translateX(${(currentPercent / 100) * rect.width}px)`;
+      } else {
+        marker.style.transform = `translateY(${(currentPercent / 100) * rect.height}px)`;
+      }
+    }
+
+    function init() {
+      populateDropdown();
+      createFieldMarkings();
+      updateKicker('bears');
+
+      currentPercent = endZonePercent + (30 / 100) * playingFieldPercent;
+
+      // Set initial position after a brief delay to ensure field is rendered
+      requestAnimationFrame(() => {
+        setMarkerPosition();
+        const fgDistance = percentToYardsFromGoal(currentPercent) + 17;
+        result.textContent = fgDistance;
+        updateSuccessRate(fgDistance);
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      createFieldMarkings();
+      setMarkerPosition();
+      // Re-render kick markers on resize
+      const selectedKicker = dropdown.value;
+      if (selectedKicker) renderKickMarkers(selectedKicker);
+    });
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700;900&family=Oswald:wght@600;700&display=swap');
+
+:root {
+  --primary-color: #0B162A;
+  --secondary-color: #C83803;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Roboto Condensed', sans-serif;
+  background: #111;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  color: white;
+  gap: 16px;
+}
+
+/* ============================================
+   SIDE PANEL
+   ============================================ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.kicker-select select {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  background: #1a1a1a;
+  color: white;
+  cursor: pointer;
+  min-width: 180px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.kicker-select select:hover {
+  border-color: var(--secondary-color);
+}
+
+.kicker-select select:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+}
+
+.scoreboard {
+  text-align: center;
+}
+
+.scoreboard-number {
+  font-family: 'Oswald', sans-serif;
+  font-size: 72px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  width: 3ch;
+  text-align: center;
+}
+
+.scoreboard-unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 3px;
+}
+
+.success-rate {
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  min-width: 140px;
+}
+
+.rate-number {
+  font-family: 'Oswald', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rate-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.success-rate.easy .rate-number { color: #22c55e; }
+.success-rate.medium .rate-number { color: #eab308; }
+.success-rate.hard .rate-number { color: #f97316; }
+.success-rate.extreme .rate-number { color: #ef4444; }
+
+/* ============================================
+   KICK MARKERS (checkmarks and Xs)
+   ============================================ */
+.kick-marker {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 900;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.kick-marker:hover {
+  z-index: 15;
+}
+
+.kick-marker.made {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.kick-marker.missed {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.kick-tooltip {
+  position: fixed;
+  display: none;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  z-index: 100;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.kicker-stats {
+  text-align: center;
+}
+
+.kicker-stat {
+  font-size: 12px;
+  color: #666;
+}
+
+.kicker-stat span {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ============================================
+   FIELD WRAPPER
+   ============================================ */
+.field-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ============================================
+   FIELD - Realistic look based on Soldier Field
+   ============================================ */
+.field {
+  position: relative;
+  border: 5px solid white;
+  cursor: pointer;
+  user-select: none;
+  overflow: visible;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  touch-action: none;
+
+  /* Natural grass - yellowish green like real turf */
+  background-color: #6b8c42;
+}
+
+/* ============================================
+   END ZONES - Both navy like real Soldier Field
+   ============================================ */
+.end-zone {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.end-zone-text {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* ============================================
+   MIDFIELD LOGO
+   ============================================ */
+.midfield-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+.midfield-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ============================================
+   YARD LINES
+   ============================================ */
+.yard-line {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.yard-line.major {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.yard-number {
+  position: absolute;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  color: white;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   LINE OF SCRIMMAGE
+   ============================================ */
+.marker {
+  position: absolute;
+  background: #ffff00;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow:
+    0 0 12px rgba(255, 255, 0, 1),
+    0 0 30px rgba(255, 255, 0, 0.5);
+  will-change: transform;
+  touch-action: none;
+}
+
+.ball-spot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(145deg, #a0522d, #6b3510);
+  border: 2px solid white;
+  border-radius: 45%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* ============================================
+   GOAL POST
+   ============================================ */
+.goal-post {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.goal-post .crossbar { background: #ffd700; }
+.goal-post .upright-container { display: flex; justify-content: space-between; }
+.goal-post .upright { background: #ffd700; }
+.goal-post .post { background: linear-gradient(to bottom, #ffd700, #b8860b); }
+
+/* ============================================
+   INSTRUCTIONS
+   ============================================ */
+.instructions {
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #444;
+  letter-spacing: 2px;
+}
+
+/* ============================================
+   PORTRAIT MODE
+   ============================================ */
+@media (orientation: portrait) {
+  body {
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .scoreboard-number {
+    font-size: 48px;
+  }
+
+  .kicker-select select {
+    min-width: 140px;
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .success-rate {
+    padding: 8px 14px;
+    min-width: 100px;
+  }
+
+  .rate-number {
+    font-size: 36px;
+  }
+
+  .rate-label {
+    font-size: 9px;
+  }
+
+  .kicker-stat {
+    font-size: 10px;
+  }
+
+  .kick-marker {
+    width: 16px;
+    height: 16px;
+    font-size: 11px;
+  }
+
+  .field {
+    width: min(92vw, 360px);
+    height: auto;
+    aspect-ratio: 53.3 / 120;
+    max-height: calc(100dvh - 160px);
+
+    /* Vertical grass stripes */
+    background:
+      repeating-linear-gradient(
+        180deg,
+        #6b8c42 0%, #6b8c42 5%,
+        #5f7d3a 5%, #5f7d3a 10%
+      );
+  }
+
+  .end-zone {
+    left: 0;
+    right: 0;
+    height: 8.33%;
+  }
+
+  .end-zone.goal {
+    top: 0;
+    border-bottom: 3px solid white;
+  }
+
+  .end-zone.team {
+    bottom: 0;
+    border-top: 3px solid white;
+  }
+
+  .end-zone-text {
+    font-size: clamp(10px, 3.5vw, 16px);
+    letter-spacing: 0.2em;
+  }
+
+  .midfield-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .yard-line {
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .yard-number {
+    font-size: 9px;
+  }
+  .yard-number.left { left: 5px; }
+  .yard-number.right { right: 5px; }
+
+  .marker {
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 5px;
+  }
+
+  .ball-spot {
+    width: 14px;
+    height: 9px;
+  }
+
+  .goal-post {
+    left: 50%;
+    transform: translateX(-50%);
+    top: -28px;
+  }
+
+  .goal-post .upright-container { width: 28px; order: 1; }
+  .goal-post .upright { width: 2px; height: 14px; }
+  .goal-post .crossbar { width: 28px; height: 3px; order: 2; }
+  .goal-post .post { width: 3px; height: 10px; order: 3; }
+}
+
+/* ============================================
+   LANDSCAPE MODE
+   ============================================ */
+@media (orientation: landscape) {
+  body {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .panel {
+    gap: 14px;
+  }
+
+  .field {
+    height: min(88vh, 88dvh, 520px);
+    width: auto;
+    aspect-ratio: 120 / 53.3;
+    max-width: calc(100vw - 260px);
+
+    /* Horizontal grass stripes */
+    background:
+      repeating-linear-gradient(
+        90deg,
+        #6b8c42 0%, #6b8c42 5%,
+        #5f7d3a 5%, #5f7d3a 10%
+      );
+  }
+
+  .end-zone {
+    top: 0;
+    bottom: 0;
+    width: 8.33%;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .end-zone.goal {
+    left: 0;
+    border-right: 3px solid white;
+  }
+
+  .end-zone.team {
+    right: 0;
+    border-left: 3px solid white;
+  }
+
+  .end-zone-text {
+    font-size: clamp(12px, 1.8vw, 20px);
+    letter-spacing: 0.25em;
+  }
+
+  .midfield-logo {
+    width: 65px;
+    height: 65px;
+  }
+
+  .yard-line {
+    top: 0;
+    bottom: 0;
+    width: 2px;
+  }
+
+  .yard-number {
+    writing-mode: horizontal-tb;
+    font-size: 10px;
+  }
+  .yard-number.left { top: 5px; }
+  .yard-number.right { bottom: 5px; }
+
+  .marker {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 5px;
+  }
+
+  .ball-spot {
+    width: 9px;
+    height: 14px;
+  }
+
+  .goal-post {
+    top: 50%;
+    transform: translateY(-50%);
+    left: -36px;
+    flex-direction: row;
+  }
+
+  .goal-post .upright-container { flex-direction: column; height: 32px; order: 1; }
+  .goal-post .upright { width: 16px; height: 2px; }
+  .goal-post .crossbar { width: 3px; height: 32px; order: 2; }
+  .goal-post .post { width: 12px; height: 3px; order: 3; }
+
+  .instructions {
+    display: none;
+  }
+}
+
+/* ============================================
+   LARGE DESKTOP
+   ============================================ */
+@media (orientation: landscape) and (min-width: 1100px) {
+  .field {
+    height: min(90vh, 90dvh, 600px);
+    max-width: calc(100vw - 300px);
+  }
+
+  .scoreboard-number {
+    font-size: 80px;
+  }
+
+  .end-zone-text {
+    font-size: 22px;
+  }
+
+  .midfield-logo {
+    width: 85px;
+    height: 85px;
+  }
+
+  .yard-number {
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   EXTRA LARGE DESKTOP
+   ============================================ */
+@media (orientation: landscape) and (min-width: 1400px) {
+  .field {
+    height: min(90vh, 90dvh, 700px);
+  }
+
+  .scoreboard-number {
+    font-size: 88px;
+  }
+
+  .midfield-logo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .end-zone-text {
+    font-size: 26px;
+    letter-spacing: 0.3em;
+  }
+
+  .yard-number {
+    font-size: 14px;
+  }
+}
