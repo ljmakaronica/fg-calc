@@ -35,6 +35,16 @@
 
       <div class="panel-divider"></div>
 
+      <div class="marker-toggle">
+        <label class="toggle-label" for="kick-markers-toggle">
+          <span>Kick Markers</span>
+          <input type="checkbox" id="kick-markers-toggle" checked>
+          <span class="toggle-switch"></span>
+        </label>
+      </div>
+
+      <div class="panel-divider"></div>
+
       <div class="kicker-stats">
         <div class="kicker-stat">Season Long <span id="season-long">--</span></div>
         <div class="kicker-stat">Career Long <span id="career-long">--</span></div>
@@ -171,6 +181,7 @@
 
     let currentKicker = null;
     let currentPercent = 33;
+    let showKickMarkers = true;
 
     const field = document.getElementById('field');
     const marker = document.getElementById('marker');
@@ -188,6 +199,7 @@
     const kickerNameEl = document.getElementById('kicker-name');
     const kickerTeamEl = document.getElementById('kicker-team');
     const kickTooltip = document.getElementById('kick-tooltip');
+    const kickMarkersToggle = document.getElementById('kick-markers-toggle');
 
     let isDragging = false;
     const endZonePercent = 8.33;
@@ -323,6 +335,8 @@
       // Remove existing markers
       document.querySelectorAll('.kick-marker').forEach(el => el.remove());
 
+      if (!showKickMarkers) return;
+
       const kicks = kickLogs[kickerId];
       if (!kicks) return;
 
@@ -455,6 +469,11 @@
     document.addEventListener('touchend', endDrag);
 
     dropdown.addEventListener('change', (e) => updateKicker(e.target.value));
+
+    kickMarkersToggle.addEventListener('change', () => {
+      showKickMarkers = kickMarkersToggle.checked;
+      renderKickMarkers(dropdown.value);
+    });
 
     function setMarkerPosition() {
       const rect = field.getBoundingClientRect();
