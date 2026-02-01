@@ -124,6 +124,7 @@ body {
   align-items: baseline;
   justify-content: center;
   gap: 6px;
+  min-width: 100px;
 }
 
 .scoreboard-number {
@@ -132,6 +133,9 @@ body {
   font-weight: 700;
   color: #fff;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: center;
 }
 
 .scoreboard-unit {
@@ -149,6 +153,7 @@ body {
   border-radius: 8px;
   background: #222;
   border: 1px solid #333;
+  min-width: 160px;
 }
 
 .rate-number {
@@ -156,6 +161,9 @@ body {
   font-size: 40px;
   font-weight: 700;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: center;
 }
 
 .rate-label {
@@ -473,10 +481,12 @@ body {
   .panel-card {
     flex-direction: row;
     align-items: center;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 10px 16px;
     padding: 12px 16px;
     min-width: unset;
     width: 100%;
+    justify-content: center;
   }
 
   .kicker-identity {
@@ -507,9 +517,7 @@ body {
   }
 
   .panel-divider {
-    width: 1px;
-    height: 32px;
-    flex-shrink: 0;
+    display: none;
   }
 
   .scoreboard {
@@ -527,6 +535,7 @@ body {
   .success-rate {
     padding: 6px 12px;
     flex-shrink: 0;
+    min-width: 120px;
   }
 
   .rate-number {
@@ -545,9 +554,7 @@ body {
     display: none;
   }
 
-  .panel-divider:last-of-type {
-    display: none;
-  }
+  /* panel-divider hidden above */
 
   .kick-marker {
     width: 16px;

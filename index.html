@@ -1553,10 +1553,34 @@
 
         marker.addEventListener('mouseenter', showTooltip);
         marker.addEventListener('mouseleave', hideTooltip);
+        marker.addEventListener('touchstart', handleMarkerTap, { passive: false });
 
         field.appendChild(marker);
       });
     }
+
+    let activeTooltipMarker = null;
+
+    function handleMarkerTap(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      const el = e.target.closest('.kick-marker');
+      if (!el) return;
+
+      if (activeTooltipMarker === el) {
+        hideTooltip();
+        return;
+      }
+
+      activeTooltipMarker = el;
+      showTooltip({ target: el });
+    }
+
+    document.addEventListener('touchstart', (e) => {
+      if (activeTooltipMarker && !e.target.closest('.kick-marker')) {
+        hideTooltip();
+      }
+    });
 
     function showTooltip(e) {
       const el = e.target;
@@ -1575,6 +1599,7 @@
 
     function hideTooltip() {
       kickTooltip.style.display = 'none';
+      activeTooltipMarker = null;
     }
 
     function createFieldMarkings() {
